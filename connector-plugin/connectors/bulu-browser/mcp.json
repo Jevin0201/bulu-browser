@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "bulu-browser": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:\\Users\\Jevin\\AppData\\Local\\bulu-browser\\app\\src\\index.mjs"
+      ]
+    }
+  }
+}

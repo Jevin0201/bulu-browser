@@ -1,0 +1,16 @@
+{
+  "name": "bulu-local",
+  "description": "布噜浏览器本地连接器市场",
+  "owner": {
+    "name": "Local",
+    "email": "local@localhost"
+  },
+  "plugins": [
+    {
+      "name": "bulu-browser",
+      "source": "./connectors/bulu-browser",
+      "version": "1.0.0",
+      "description": "用真实 Chrome 浏览器操作网页，独立 profile 保留登录态与书签。"
+    }
+  ]
+}

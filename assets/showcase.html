@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1180px;
+    background: #f4f2ee;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    padding: 42px 40px 34px;
+    box-sizing: border-box;
+  }
+  .row { display: flex; align-items: flex-end; gap: 38px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .label { font-size: 13px; color: #6b665e; letter-spacing: 0.4px; }
+
+  .frame { position: relative; overflow: hidden; }
+  .frame .icon {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%) scale(var(--s));
+  }
+
+  .icon { width: 512px; height: 512px; }
+  .chrome { position: absolute; left: 38px; top: 38px; width: 404px; height: 404px; }
+  .badge {
+    position: absolute;
+    right: 52px;
+    bottom: 86px;
+    width: 178px;
+    height: 145px;
+    filter: drop-shadow(0 8px 14px rgba(60, 45, 20, 0.40));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bulu {
+    width: 178px;
+    height: 145px;
+    display: block;
+    -webkit-mask-image: linear-gradient(to bottom, #000 84%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, #000 84%, rgba(0,0,0,0) 100%);
+  }
+
+  .tile {
+    background: #ffffff;
+    border-radius: 120px;
+    box-shadow: 0 8px 30px rgba(60, 45, 20, 0.13);
+  }
+  .small-tile {
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 4px 14px rgba(60, 45, 20, 0.10);
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="row">
+
+  <div class="cell">
+    <div class="frame" style="width:512px;height:512px;--s:1">
+      <div class="icon">
+        <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+          <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+          <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+          <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+          <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+        </svg>
+        <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+      </div>
+    </div>
+    <div class="label">透明底 · 512</div>
+  </div>
+
+  <div class="cell">
+    <div class="frame tile" style="width:512px;height:512px;--s:0.92">
+      <div class="icon">
+        <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+          <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+          <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+          <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+          <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+        </svg>
+        <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+      </div>
+    </div>
+    <div class="label">白底圆角</div>
+  </div>
+
+  <div class="cell">
+    <div class="row" style="gap:20px;align-items:center">
+      <div class="cell" style="gap:10px">
+        <div class="small-tile" style="width:128px;height:128px">
+          <div class="frame" style="width:104px;height:104px;--s:0.203">
+            <div class="icon">
+              <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+                <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+                <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+                <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+                <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+              </svg>
+              <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+            </div>
+          </div>
+        </div>
+        <div class="label">128</div>
+      </div>
+
+      <div class="cell" style="gap:10px">
+        <div class="small-tile" style="width:64px;height:64px;border-radius:14px">
+          <div class="frame" style="width:52px;height:52px;--s:0.102">
+            <div class="icon">
+              <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+                <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+                <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+                <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+                <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+              </svg>
+              <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+            </div>
+          </div>
+        </div>
+        <div class="label">64</div>
+      </div>
+
+      <div class="cell" style="gap:10px">
+        <div class="small-tile" style="width:48px;height:48px;border-radius:11px">
+          <div class="frame" style="width:38px;height:38px;--s:0.074">
+            <div class="icon">
+              <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+                <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+                <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+                <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+                <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+              </svg>
+              <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+            </div>
+          </div>
+        </div>
+        <div class="label">48</div>
+      </div>
+    </div>
+    <div class="label">小尺寸可辨识度</div>
+  </div>
+
+</div>
+
+</body>
+</html>

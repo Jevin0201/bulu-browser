@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  body { display: flex; gap: 40px; padding: 40px; }
+
+  .icon { position: relative; width: 512px; height: 512px; flex: none; }
+  .icon.rounded {
+    background: #ffffff;
+    border-radius: 112px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14);
+  }
+  .chrome { position: absolute; left: 38px; top: 38px; width: 404px; height: 404px; }
+
+  .badge {
+    position: absolute;
+    right: 52px;
+    bottom: 86px;
+    width: 178px;
+    height: 145px;
+    filter: drop-shadow(0 8px 14px rgba(60, 45, 20, 0.40));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bulu {
+    width: 178px;
+    height: 145px;
+    display: block;
+    -webkit-mask-image: linear-gradient(to bottom, #000 84%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, #000 84%, rgba(0,0,0,0) 100%);
+  }
+</style>
+</head>
+<body>
+
+  <div class="icon" id="plain">
+    <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+      <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+      <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+      <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+      <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+    </svg>
+    <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+  </div>
+
+  <div class="icon rounded" id="rounded">
+    <svg class="chrome" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M100,100 L13.4,50 A100,100 0 0,1 186.6,50 Z" fill="#EA4335"/>
+      <path d="M100,100 L186.6,50 A100,100 0 0,1 100,200 Z" fill="#FBBC04"/>
+      <path d="M100,100 L100,200 A100,100 0 0,1 13.4,50 Z" fill="#34A853"/>
+      <circle cx="100" cy="100" r="45" fill="#FFFFFF"/>
+      <circle cx="100" cy="100" r="37" fill="#4285F4"/>
+    </svg>
+    <div class="badge"><img class="bulu" src="file:///E:/Project/bulu-browser-mcp/assets/bulu-mascot-upper.png" alt=""></div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bulu-browser",
+  "version": "1.0.0",
+  "description": "Drive a dedicated real Chrome browser through CDP: open pages, read structured snapshots, click, type, screenshot, inspect network requests. Login state and bookmarks persist in an isolated profile.",
+  "keywords": [
+    "mcp",
+    "browser",
+    "chrome",
+    "cdp",
+    "automation"
+  ],
+  "extensions": {
+    "ai.workbuddy": {
+      "display": {
+        "name": "布噜浏览器",
+        "name_en": "Bulu Browser",
+        "description_zh": "用独立的真实 Chrome 浏览器操作网页：打开、读取、点击、输入、截图、抓接口。基于 CDP + Playwright，登录态与书签保存在专属 profile，重启后依然可用。",
+        "description_en": "Drive a dedicated real Chrome browser: open pages, read structured snapshots, click, type, screenshot and inspect network traffic. Login state and bookmarks persist across restarts.",
+        "examples_zh": [
+          "打开这个网页看看，帮我总结页面内容",
+          "帮我把这个表单填一下并提交",
+          "把页面上这个接口最近的请求抓出来，我要看返回结构",
+          "截个图给我看当前页面长什么样"
+        ],
+        "examples_en": [
+          "Open this page and summarize what it says",
+          "Fill in and submit this form for me",
+          "Capture the recent network requests on this page",
+          "Take a screenshot of the current page"
+        ]
+      },
+      "schemaVersion": "1.0.0"
+    }
+  }
+}
