@@ -1,6 +1,6 @@
 {
   "name": "bulu-browser-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Drive a real Chrome browser through CDP + Playwright: open pages, read structured snapshots, click, type, screenshot, inspect network requests. Login state and bookmarks persist in an isolated profile.",
   "keywords": [
     "mcp",
@@ -30,5 +30,5 @@
     "url": "https://github.com/Jevin0201/bulu-browser.git"
   },
   "homepage": "https://github.com/Jevin0201/bulu-browser",
-  "mcpName": "io.github.jevin0201/bulu-browser"
+  "mcpName": "io.github.Jevin0201/bulu-browser"
 }

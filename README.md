@@ -7,7 +7,7 @@ WorkBuddy 会真的打开一个 Chrome 去操作，而不是只抓 HTML 文本�
 
 ## 作为公共 MCP 使用（任意客户端，无需克隆仓库）
 
-包已发布到 npm，并注册到官方 MCP Registry（`io.github.jevin0201/bulu-browser`）。
+包已发布到 npm，并注册到官方 MCP Registry（`io.github.Jevin0201/bulu-browser`）。
 要求：Node.js ≥ 20，本机装有 Chrome / Edge / Brave 之一。
 
 在任意支持 stdio MCP 的客户端（Claude Code、Claude Desktop、Cursor、WorkBuddy 等）配置：
