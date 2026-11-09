@@ -130,47 +130,97 @@ async function startChrome(executablePath, profileDir, portFile, options) {
   if (options.headless) args.push("--headless=new")
   args.push("about:blank")
 
-  // detached + unref：让 Chrome 独立于 MCP 进程存活。
+  // detached + unref：让 Chrome 独立于当前进程存活。
   // 否则 WorkBuddy 结束会话杀掉 MCP 进程时，Chrome 会被一起带走，未落盘的登录态就丢了。
-  const child = spawn(executablePath, args, { stdio: "ignore", windowsHide: false, detached: true })
-  child.unref()
-  let exitCode = null
-  child.once("exit", (code) => {
-    exitCode = code
-  })
-  child.once("error", (error) => {
-    exitCode = -1
-    process.stderr.write(`[bulu] chrome spawn error: ${error.message}\n`)
-  })
+  // Windows 额外走 WMI：CLI 常在沙箱 bash（Job Object，命令结束即杀全家）里运行，
+  // detached 进程依然留在 Job 里会被连带杀死。WMI 由系统服务创建进程，天然在 Job 外。
+  let handle
+  if (process.platform === "win32") {
+    handle = await spawnOutsideJobWindows(executablePath, args)
+  } else {
+    const child = spawn(executablePath, args, { stdio: "ignore", windowsHide: false, detached: true })
+    child.unref()
+    handle = { pid: child.pid, child }
+  }
+  const spawnedByUs = true
 
   // 刚开机时 Chrome 冷启动 + 大 profile 可能要十几秒，给足 45 秒。
   const deadline = Date.now() + (options.timeoutMs ?? 45_000)
   let lastError = "Chrome 的 CDP 端点没有就绪"
   while (Date.now() < deadline) {
-    if (exitCode !== null && exitCode !== 0) {
-      killTree(child)
-      throw new Error(`Chrome 启动后立即退出（code ${exitCode}），请检查浏览器是否可正常启动`)
+    if (!processAlive(handle)) {
+      // 新进程已经退出，最常见原因是 profile 被另一个实例占用（转发后退出），尝试接管那个实例
+      const takeover = await takeOverRunningInstance(profileDir, portFile, executablePath)
+      if (takeover) return takeover
+      throw new Error(
+        `Chrome 启动后立即退出，可能是 profile「${profileDir}」正被别的实例使用，或浏览器路径不可用。` +
+          `请关闭该 Chrome 窗口后重试，或改用其他 BULU_PROFILE_DIR。`,
+      )
     }
     try {
       const info = await readCdpVersion(port)
       writeFileSync(portFile, JSON.stringify({ port }), "utf8")
-      return { child, reused: false, port, profileDir, executablePath, ...info }
+      return { child: handle.child, pid: handle.pid, spawnedByUs, reused: false, port, profileDir, executablePath, ...info }
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error)
     }
-    // 新进程已经退出（code 0）说明 profile 被另一个实例占用，尝试接管那个实例
-    if (exitCode === 0) {
-      const takeover = await takeOverRunningInstance(profileDir, portFile, executablePath)
-      if (takeover) return takeover
-      throw new Error(
-        `Chrome 以 code 0 立即退出，说明已有实例正在使用 profile「${profileDir}」。` +
-          `请关闭该 Chrome 窗口后重试，或改用其他 BULU_PROFILE_DIR。`,
-      )
-    }
     await new Promise((resolve) => setTimeout(resolve, 250))
   }
-  killTree(child)
+  killTree(handle)
   throw new Error(`等待 Chrome 调试端口超时：${lastError}`)
+}
+
+// 用 WMI（Win32_Process.Create）创建进程：创建者是 WmiPrvSE 系统服务，
+// 不在调用方的 Job Object 里，沙箱命令结束时不会被连带回收。
+async function spawnOutsideJobWindows(executablePath, args) {
+  const cmdline = [executablePath, ...args]
+    .map((part) => (/\s/.test(part) ? `"${part}"` : part))
+    .join(" ")
+  const script =
+    "$ErrorActionPreference='Stop';" +
+    "try { $r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:BULU_CHROME_CMDLINE };" +
+    " if ($r.ReturnValue -ne 0) { throw \"WMI ReturnValue $($r.ReturnValue)\" };" +
+    ' [Console]::Out.Write($r.ProcessId) } catch { [Console]::Out.Write("ERR:" + $_.Exception.Message); exit 1 }'
+  try {
+    const stdout = await new Promise((resolve, reject) => {
+      const ps = spawn(
+        "powershell.exe",
+        ["-NoProfile", "-NonInteractive", "-Command", script],
+        {
+          stdio: ["ignore", "pipe", "pipe"],
+          windowsHide: true,
+          env: { ...process.env, BULU_CHROME_CMDLINE: cmdline },
+        },
+      )
+      let out = ""
+      let err = ""
+      ps.stdout.on("data", (chunk) => (out += chunk))
+      ps.stderr.on("data", (chunk) => (err += chunk))
+      ps.on("error", reject)
+      ps.on("close", (code) => (code === 0 ? resolve(out.trim()) : reject(new Error(err.trim() || `powershell exit ${code}`))))
+    })
+    if (!/^\d+$/.test(stdout)) throw new Error(`意外的输出: ${stdout.slice(0, 120)}`)
+    return { pid: Number(stdout), child: null }
+  } catch (error) {
+    process.stderr.write(`[bulu] WMI 启动失败，回退普通 detached 启动: ${error?.message ?? error}\n`)
+    const child = spawn(executablePath, args, { stdio: "ignore", windowsHide: false, detached: true })
+    child.unref()
+    return { pid: child.pid, child }
+  }
+}
+
+function processAlive(handle) {
+  if (handle?.child) {
+    // 有真实子进程句柄：非 0 退出码视为已死；0 可能是单实例转发，仍需结合 pid 判断
+    if (handle.child.exitCode !== null && handle.child.exitCode !== 0) return false
+  }
+  if (!handle?.pid) return false
+  try {
+    process.kill(handle.pid, 0)
+    return true
+  } catch (error) {
+    return error?.code === "EPERM"
+  }
 }
 
 // 清理 Chrome 在 profile 里留下的单实例锁。只在启动失败后调用，
@@ -215,36 +265,59 @@ async function takeOverRunningInstance(profileDir, portFile, executablePath) {
   return null
 }
 
-export function killTree(child) {
-  if (!child?.pid) return
+export function killTree(target) {
+  const pid = target?.pid ?? target?.child?.pid
+  if (!pid) return
   try {
     if (process.platform === "win32") {
-      spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore", windowsHide: true })
+      spawn("taskkill", ["/pid", String(pid), "/T", "/F"], { stdio: "ignore", windowsHide: true })
     } else {
-      child.kill("SIGKILL")
+      target.child ? target.child.kill("SIGKILL") : process.kill(pid, "SIGKILL")
     }
   } catch {}
 }
 
 // 等 Chrome 自己退出（此时它已经把 cookie / localStorage 落盘）。
 // 超时才强杀，避免杀得太早导致登录态丢失。
-export function waitExit(child, timeoutMs = 6000) {
-  if (!child?.pid) return Promise.resolve(true)
-  if (child.exitCode !== null || child.signalCode !== null) return Promise.resolve(true)
+export function waitExit(target, timeoutMs = 6000) {
+  const child = target?.child ?? target
+  const pid = target?.pid ?? child?.pid
+  if (!pid) return Promise.resolve(true)
+  if (child && (child.exitCode !== null || child.signalCode !== null)) return Promise.resolve(true)
+  if (typeof child?.once === "function") {
+    return new Promise((resolve) => {
+      let settled = false
+      const done = (clean) => {
+        if (settled) return
+        settled = true
+        clearInterval(poller)
+        clearTimeout(timer)
+        resolve(clean)
+      }
+      const poller = setInterval(() => {
+        if (!processAlive({ pid })) done(true)
+      }, 300)
+      const timer = setTimeout(() => {
+        killTree({ pid })
+        done(false)
+      }, timeoutMs)
+      child.once("exit", () => done(true))
+      child.once("error", () => done(true))
+    })
+  }
+  // WMI 启动只有 pid：轮询存活状态
   return new Promise((resolve) => {
-    let settled = false
-    const done = (clean) => {
-      if (settled) return
-      settled = true
-      clearTimeout(timer)
-      resolve(clean)
-    }
-    const timer = setTimeout(() => {
-      killTree(child)
-      done(false)
-    }, timeoutMs)
-    child.once("exit", () => done(true))
-    child.once("error", () => done(true))
+    const started = Date.now()
+    const poller = setInterval(() => {
+      if (!processAlive({ pid })) {
+        clearInterval(poller)
+        resolve(true)
+      } else if (Date.now() - started > timeoutMs) {
+        clearInterval(poller)
+        killTree({ pid })
+        resolve(false)
+      }
+    }, 300)
   })
 }
 

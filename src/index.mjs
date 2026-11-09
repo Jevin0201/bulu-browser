@@ -5,7 +5,7 @@ import path from "node:path"
 import os from "node:os"
 import { session } from "./driver.mjs"
 
-const SERVER_INFO = { name: "bulu-browser", version: "1.1.0" }
+const SERVER_INFO = { name: "bulu-browser", version: "1.1.1" }
 const PROTOCOL = "2024-11-05"
 
 const TOOLS = [
@@ -391,13 +391,16 @@ async function main() {
       }),
     )
   })
+  // 重要：进程退出时只断开 CDP 连接，绝不关闭浏览器。
+  // Chrome 是独立进程（detached + 端口文件复用），本进程死活不应影响它。
+  // 旧版在 stdin 关闭/收到信号时调用 session.close()，导致宿主（WorkBuddy 等）
+  // 重启或回收 MCP server 时用户的浏览器被一起关掉。
+  // 需要显式关闭浏览器的用户应调用 browser_close 工具或 cli quit。
   rl.on("close", () => {
-    queue.finally(() => session.close().finally(() => process.exit(0)))
+    queue.finally(() => process.exit(0))
   })
   for (const signal of ["SIGINT", "SIGTERM"]) {
-    process.on(signal, () => {
-      void session.close().finally(() => process.exit(0))
-    })
+    process.on(signal, () => process.exit(0))
   }
 }
 

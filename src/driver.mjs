@@ -559,7 +559,8 @@ export class BrowserSession {
   async close() {
     const launch = this.launch
     this.launch = null
-    const owned = Boolean(launch?.child)
+    // child 为 null 也可能是 WMI 启动（沙箱 Job 逃逸），所以不能只看 child。
+    const owned = Boolean(launch?.child) || launch?.spawnedByUs === true
     // 关键：用 CDP 让 Chrome 自己正常退出，它才会把 cookie / localStorage 写盘。
     // 直接 taskkill 会把登录态一起带走。
     if (this.browser && owned) {
@@ -571,8 +572,8 @@ export class BrowserSession {
     if (this.browser) await this.browser.close().catch(() => {})
     this.browser = null
     let graceful = false
-    if (owned) graceful = await waitExit(launch.child)
-    return { closed: true, graceful, profileKept: this.launch?.profileDir ?? launch?.profileDir }
+    if (owned) graceful = await waitExit(launch.child ?? { pid: launch.pid })
+    return { closed: true, graceful, profileKept: launch?.profileDir }
   }
 }
 
