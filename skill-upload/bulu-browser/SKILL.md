@@ -13,7 +13,7 @@ examples_en:
   - "Open example.com and summarize the main content"
   - "Fill the search box on this page with a keyword, submit, and tell me the results"
   - "List the API requests this page made and show the latest response body"
-version: 1.1.0
+version: 1.2.0
 author: Jevin0201
 allowed-tools: Bash
 ---
@@ -64,8 +64,14 @@ npx -y bulu-browser-mcp cli screenshot --out /tmp/page.png
 npx -y bulu-browser-mcp cli content --max-chars 50000
 
 # 网络请求 / 响应体 / console 日志（打开页面后自动记录）
-npx -y bulu-browser-mcp cli network --filter api --limit 30
+# --verbose 附带每个请求的请求头（requestHeaders）和 POST body（postData），逆向接口必备
+npx -y bulu-browser-mcp cli network --filter api --limit 30 --verbose
+# network-body 优先返回抓包时缓存的真实原始响应（当时登录态/自定义 header 都有效），未缓存才重放
 npx -y bulu-browser-mcp cli network-body "https://api.example.com/xxx"
+
+# 在页面上下文发任意请求（自动携带该站点的 Cookie 和登录态），用于接口调试 / 逆向验证
+# --header 可重复传，Cookie/Origin/Referer 等浏览器自动带的头无法覆盖
+npx -y bulu-browser-mcp cli request "https://api.example.com/search" --method POST --header "Content-Type: application/json" --data '{"q":"test"}'
 npx -y bulu-browser-mcp cli console --limit 50
 
 # 标签页管理
@@ -87,6 +93,14 @@ npx -y bulu-browser-mcp cli quit
 3. 需要操作时 `act --ref <ref> --interaction <类型>`，操作完**必须重新 snapshot** 拿新 ref
 4. 需要看视觉效果时 `screenshot`，用返回的 `path` 查看图片
 5. 结束后不主动 `quit`，保留浏览器供后续使用（用户要求关闭时才执行）
+
+## 逆向抓包工作流
+
+1. `open <url>` 打开目标页（需要登录态的站点先让用户在浏览器里登录）
+2. 用 `act` / `key` 触发目标功能，让页面自己发出请求
+3. `network --filter <关键字> --verbose` 定位接口：看方法、URL、状态码、请求头、POST body
+4. `network-body <url>` 看真实响应体（抓包缓存，非重放）
+5. `request <url> --method POST --header ... --data ...` 改参数重放验证
 
 ## 注意事项
 

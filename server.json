@@ -3,12 +3,12 @@
   "name": "io.github.Jevin0201/bulu-browser",
   "title": "Bulu Browser",
   "description": "Drive a real Chrome via CDP + Playwright: snapshots, click/type, screenshots, network inspection.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "bulu-browser-mcp",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "transport": {
         "type": "stdio"
       }

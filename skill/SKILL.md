@@ -45,7 +45,7 @@ description: >-
 | `browser_screenshot` | 整页截图，返回 PNG 路径 |
 | `browser_tabs` / `browser_select_tab` / `browser_close_tab` | 标签管理 |
 | `browser_request` | 在页面上下文发请求，自动带 Cookie |
-| `browser_network` | 看页面最近请求，定位接口 |
+| `browser_network` | 逆向抓包：list 看请求（`verbose: true` 带请求头和 POST body），body 取真实响应（优先抓包缓存，非重放） |
 | `browser_console` | 读 console 和 JS 报错 |
 | `browser_downloads` | 列出本会话触发的下载文件 |
 | `browser_get_content` | 导出全文（text）或源码（html） |

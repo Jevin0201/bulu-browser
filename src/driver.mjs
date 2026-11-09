@@ -1,5 +1,5 @@
 import { chromium } from "playwright-core"
-import { mkdirSync } from "node:fs"
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import os from "node:os"
 import {
@@ -14,6 +14,10 @@ import { REF_ATTRIBUTE, captureSnapshot, semanticState } from "./snapshot.mjs"
 
 const NETWORK_LIMIT = 300
 const CONSOLE_LIMIT = 200
+// CLI 每条命令是独立进程，网络记录必须落盘才能跨命令保留（MCP 进程也会加载，双形态共享抓包历史）。
+const NETWORK_STATE_FILE = path.join(os.tmpdir(), "bulu-browser", "network-log.json")
+// 落盘时只保留最近这么多条的 responseBody（每条最多 64KB），防止状态文件膨胀。
+const NETWORK_BODY_PERSIST = 30
 
 export class BrowserSession {
   constructor(options = {}) {
@@ -35,6 +39,7 @@ export class BrowserSession {
     this.dialogPromptText = ""
     this.registered = new WeakSet()
     this.hooked = new WeakSet()
+    this.networkRestored = false
   }
 
   log(message) {
@@ -73,7 +78,37 @@ export class BrowserSession {
       this.registerPage(page)
       this.indexPage(page)
     }
+    this.restoreNetworkLog()
     return browser
+  }
+
+  // 把上次（可能是别的进程）抓到的网络记录加载回来，标记 restored。
+  // restored 条目的 tabId 属于当时的进程，过滤时要跳过 tabId 匹配。
+  restoreNetworkLog() {
+    if (this.networkRestored) return
+    this.networkRestored = true
+    try {
+      const saved = JSON.parse(readFileSync(NETWORK_STATE_FILE, "utf8"))
+      if (Array.isArray(saved)) {
+        for (const item of saved) {
+          if (item && item.url) this.network.push({ ...item, restored: true })
+        }
+      }
+    } catch {}
+  }
+
+  // 网络日志落盘：保留最近 300 条，其中只有最近 30 条带 responseBody。
+  // 并发进程同时写会有覆盖窗口（last-writer-wins），对抓包场景可接受。
+  saveNetworkLog() {
+    try {
+      const keep = this.network.slice(-NETWORK_LIMIT)
+      const bodyStart = Math.max(0, keep.length - NETWORK_BODY_PERSIST)
+      const entries = keep.map((item, index) =>
+        index >= bodyStart ? item : { ...item, responseBody: undefined },
+      )
+      mkdirSync(path.dirname(NETWORK_STATE_FILE), { recursive: true })
+      writeFileSync(NETWORK_STATE_FILE, JSON.stringify(entries))
+    } catch {}
   }
 
   indexPage(page) {
@@ -161,7 +196,7 @@ export class BrowserSession {
     )
     page.on("response", (response) => {
       const request = response.request()
-      push(this.network, {
+      const entry = {
         at: Date.now(),
         tabId: this.pageId(page),
         method: request.method(),
@@ -169,8 +204,27 @@ export class BrowserSession {
         status: response.status(),
         resourceType: request.resourceType(),
         contentType: response.headers()["content-type"] ?? "",
-      })
+      }
+      push(this.network, entry)
+      // 异步补全抓包细节：请求头 / POST body / 原始响应体缓存（供 network verbose / networkBody 用）
+      this.captureNetworkDetail(entry, request, response).catch(() => {})
     })
+  }
+
+  // 逆向抓包核心：把真实发生的请求头、POST 体、原始响应体留档。
+  // 只缓存文本类响应且 ≤ 64KB，避免内存膨胀；失败静默（304/redirect 可能无 body）。
+  async captureNetworkDetail(entry, request, response) {
+    try {
+      const headers = {}
+      for (const [name, value] of Object.entries(request.headers())) headers[name] = String(value).slice(0, 300)
+      entry.requestHeaders = headers
+      const postData = request.postData()
+      if (postData) entry.postData = postData.slice(0, 4000)
+      const type = (entry.contentType || "").toLowerCase()
+      if (!type || !/text|json|javascript|xml|urlencoded|x-www-form/.test(type)) return
+      const buffer = await response.body()
+      if (buffer && buffer.length <= 65536) entry.responseBody = buffer.toString("utf8")
+    } catch {}
   }
 
   async page(tabId) {
@@ -521,20 +575,44 @@ export class BrowserSession {
 
   async networkList(options = {}) {
     const tabId = options.tabId ?? this.activeTabId
-    let items = this.network.filter((item) => !tabId || item.tabId === tabId)
+    // restored = 从磁盘恢复的历史记录，tabId 属于当时的进程，不参与 tab 过滤
+    let items = this.network.filter((item) => item.restored || !tabId || item.tabId === tabId)
     if (options.filter) items = items.filter((item) => item.url.includes(options.filter) || item.method === options.filter)
     if (options.status) items = items.filter((item) => item.status === options.status)
-    return { total: items.length, items: items.slice(-Math.min(options.limit ?? 50, 200)).reverse() }
+    const limit = Math.min(options.limit ?? 50, 200)
+    const picked = items.slice(-limit).reverse()
+    // verbose: 附带抓包细节（请求头 / POST body）。responseBody 不进列表，用 networkBody 取。
+    const strip = (item) => {
+      const { requestHeaders, postData, responseBody, ...rest } = item
+      return options.verbose ? { ...rest, requestHeaders, postData } : rest
+    }
+    return { total: items.length, items: picked.map(strip) }
   }
 
   async networkBody(input) {
+    // 优先返回抓包时缓存的真实响应体：当时的登录态、JS 加的 header 都有效，无需重放。
+    const tabId = input.tabId ?? this.activeTabId
+    const cached = [...this.network]
+      .reverse()
+      .find((item) => item.url === input.url && item.responseBody !== undefined && (item.restored || !tabId || item.tabId === tabId))
+    if (cached) {
+      return {
+        url: input.url,
+        status: cached.status,
+        source: "captured",
+        text: cached.responseBody.slice(0, 20000),
+        totalChars: cached.responseBody.length,
+        truncated: cached.responseBody.length > 20000 || undefined,
+      }
+    }
+    // 没有缓存（如非文本响应、超过 64KB、或抓包开始前的请求）则重放一次。
     const page = await this.page(input.tabId)
     const response = await page.evaluate(async (url) => {
       const result = await fetch(url, { credentials: "include" })
       const text = await result.text()
       return { status: result.status, text: text.slice(0, 20000), totalChars: text.length }
     }, input.url)
-    return { url: input.url, ...response }
+    return { url: input.url, ...response, source: "refetched" }
   }
 
   consoleLog(options = {}) {

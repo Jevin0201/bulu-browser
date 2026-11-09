@@ -50,8 +50,11 @@ const HELP = `bulu-browser CLI
   batch --steps <json>                        连续执行多步操作
   screenshot [--full] [--out <路径>]          截图，返回保存路径
   content [--max-chars <n>]                   获取页面 HTML
-  network [--filter <关键字>] [--limit <n>]   查看网络请求列表
-  network-body <url>                          重新获取某个请求的响应体
+  network [--filter <关键字>] [--limit <n>] [--verbose]
+                                             查看网络请求列表；--verbose 附带请求头和 POST body
+  network-body <url>                          取某个请求的响应体（优先返回抓包时的真实原始响应）
+  request <url> [--method GET|POST|...] [--header "名称: 值"]...
+          [--data <body>] [--max-chars <n>]   在页面上下文发请求（自动带 Cookie 和登录态）
   console [--limit <n>]                       查看页面 console 日志
   tabs                                        列出所有标签页
   select-tab <id>                             切换当前标签页
@@ -77,17 +80,14 @@ function parseArgs(argv) {
     }
     const body = item.slice(2)
     const eq = body.indexOf("=")
-    if (eq !== -1) {
-      flags[body.slice(0, eq)] = body.slice(eq + 1)
-      continue
-    }
+    const key = eq !== -1 ? body.slice(0, eq) : body
     const next = argv[i + 1]
-    if (next === undefined || next.startsWith("--")) {
-      flags[body] = true
-    } else {
-      flags[body] = next
-      i += 1
-    }
+    const value = eq !== -1 ? body.slice(eq + 1) : next === undefined || next.startsWith("--") ? true : next
+    if (eq === -1 && value !== true) i += 1
+    // 重复出现的 flag 收集成数组（request 的 --header 需要多次传）
+    if (flags[key] === undefined) flags[key] = value
+    else if (Array.isArray(flags[key])) flags[key].push(value)
+    else flags[key] = [flags[key], value]
   }
   return { positional, flags }
 }
@@ -192,12 +192,34 @@ async function run(argv) {
         filter: flags.filter,
         status: num(flags.status, undefined),
         limit: num(flags.limit, 50),
+        verbose: flags.verbose === true,
       })
 
     case "network-body": {
       const url = rest[0] ?? flags.url
       if (!url) throw new Error("network-body 需要 url")
       return session.networkBody({ url, tabId: flags.tab })
+    }
+
+    case "request": {
+      const url = rest[0] ?? flags.url
+      if (!url) throw new Error("request 需要 url，例如: cli request https://api.example.com/data")
+      const headers = {}
+      const raw = flags.header ?? flags.headers
+      const headerList = Array.isArray(raw) ? raw : raw !== undefined ? [raw] : []
+      for (const item of headerList) {
+        const idx = item.indexOf(":")
+        if (idx === -1) throw new Error(`--header 格式应为 "名称: 值"，收到: ${item}`)
+        headers[item.slice(0, idx).trim()] = item.slice(idx + 1).trim()
+      }
+      return session.request({
+        url,
+        method: String(flags.method ?? "GET").toUpperCase(),
+        headers,
+        body: flags.data ?? flags.body,
+        maxResponseChars: num(flags["max-chars"], undefined),
+        tabId: flags.tab,
+      })
     }
 
     case "console":
@@ -251,9 +273,15 @@ export async function cli(argv) {
     rememberTab(result)
     if (typeof result === "string") process.stdout.write(result)
     else process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    // 留一点时间让响应体的异步抓取（captureNetworkDetail）落地，再把网络日志写盘
+    await new Promise((resolve) => setTimeout(resolve, 400))
+    session.saveNetworkLog()
   } catch (error) {
     code = 1
     process.stdout.write(`${JSON.stringify({ ok: false, error: String(error?.message ?? error) }, null, 2)}\n`)
+    try {
+      session.saveNetworkLog()
+    } catch {}
   }
   // CDP 连接会让事件循环常驻，浏览器是独立进程，直接退出即可（不要 close，否则会关掉用户的浏览器）
   process.stdout.write("", () => process.exit(code))

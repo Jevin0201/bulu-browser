@@ -5,7 +5,7 @@ import path from "node:path"
 import os from "node:os"
 import { session } from "./driver.mjs"
 
-const SERVER_INFO = { name: "bulu-browser", version: "1.1.1" }
+const SERVER_INFO = { name: "bulu-browser", version: "1.2.0" }
 const PROTOCOL = "2024-11-05"
 
 const TOOLS = [
@@ -205,7 +205,7 @@ const TOOLS = [
   {
     name: "browser_network",
     description:
-      "查看当前标签最近的网络请求（方法、URL、状态码、类型），用于分析页面接口。action=list 列请求，action=body 取指定 URL 的响应体。",
+      "查看当前标签最近的网络请求（方法、URL、状态码、类型），用于分析页面接口、逆向抓包。action=list 列请求（verbose: true 附带请求头和 POST body），action=body 取指定 URL 的响应体（优先返回抓包时缓存的真实原始响应，未缓存才重放）。",
     inputSchema: {
       type: "object",
       properties: {
@@ -213,6 +213,7 @@ const TOOLS = [
         filter: { type: "string", description: "按 URL 片段过滤" },
         status: { type: "number", description: "按状态码过滤" },
         limit: { type: "number", description: "返回条数上限，默认 50" },
+        verbose: { type: "boolean", description: "true 时附带每个请求的请求头（requestHeaders）和 POST body（postData）" },
         url: { type: "string", description: "action=body 时要抓取的 URL" },
         tabId: { type: "string", description: "目标标签" },
       },
@@ -397,10 +398,16 @@ async function main() {
   // 重启或回收 MCP server 时用户的浏览器被一起关掉。
   // 需要显式关闭浏览器的用户应调用 browser_close 工具或 cli quit。
   rl.on("close", () => {
-    queue.finally(() => process.exit(0))
+    queue.finally(() => {
+      session.saveNetworkLog()
+      process.exit(0)
+    })
   })
   for (const signal of ["SIGINT", "SIGTERM"]) {
-    process.on(signal, () => process.exit(0))
+    process.on(signal, () => {
+      session.saveNetworkLog()
+      process.exit(0)
+    })
   }
 }
 
