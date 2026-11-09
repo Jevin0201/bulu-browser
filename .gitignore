@@ -1,3 +1,6 @@
 node_modules/
 .workbuddy/
 *.tgz
+skill-upload/*.png
+skill-upload/*.zip
+connector-upload/*.zip
