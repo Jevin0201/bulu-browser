@@ -41,7 +41,7 @@ const HELP = `bulu-browser CLI
 用法: bulu-browser-mcp cli <command> [args] [--flag value]
 
 命令:
-  open <url> [--new-tab] [--tab <id>]        打开网页（不传 url 则用当前页）
+  open <url> [--new-tab] [--tab <id>] [--settle <ms>]  打开网页（不传 url 则用当前页；--settle 加载后多等，捕获页面 XHR）
   snapshot [--tab <id>] [--selector <css>]   读取页面文本与可交互元素 refs
            [--max-text <n>] [--max-refs <n>] [--detailed]
   act --interaction <type> [--ref <ref>|--selector <css>]
@@ -117,11 +117,16 @@ async function run(argv) {
     case "open": {
       const target = rest[0] ?? flags.url
       if (!target) throw new Error("open 需要 url，例如: cli open https://example.com")
-      return session.open(target, {
+      const result = session.open(target, {
         newTab: flags["new-tab"] === true,
         tabId: flags.tab,
         timeoutMs: num(flags.timeout, undefined),
       })
+      const opened = await result
+      // --settle: 加载完成后多等一会，让页面 JS 发出的 XHR 也进入抓包窗口（SPA 常见需求）
+      const settle = num(flags.settle, 0)
+      if (settle > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(settle, 30000)))
+      return opened
     }
 
     case "snapshot":
