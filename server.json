@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.jevin0201/bulu-browser",
   "title": "Bulu Browser",
-  "description": "Drive a real Chrome browser through CDP + Playwright: open pages, read structured snapshots, click, type, screenshot, inspect network requests. Login state persists in an isolated profile.",
+  "description": "Drive a real Chrome via CDP + Playwright: snapshots, click/type, screenshots, network inspection.",
   "version": "1.0.0",
   "packages": [
     {
