@@ -5,7 +5,7 @@ import path from "node:path"
 import os from "node:os"
 import { session } from "./driver.mjs"
 
-const SERVER_INFO = { name: "bulu-browser", version: "1.0.0" }
+const SERVER_INFO = { name: "bulu-browser", version: "1.1.0" }
 const PROTOCOL = "2024-11-05"
 
 const TOOLS = [
@@ -52,7 +52,7 @@ const TOOLS = [
         selector: { type: "string", description: "CSS 选择器（没有 ref 时使用）" },
         interaction: {
           type: "string",
-          enum: ["click", "double_click", "hover", "type", "select", "check", "uncheck", "focus", "scroll_into_view"],
+          enum: ["click", "double_click", "hover", "type", "select", "check", "uncheck", "focus", "scroll_into_view", "upload"],
           description: "操作类型",
         },
         text: { type: "string", description: "interaction=type 时要输入的文字" },
@@ -102,7 +102,7 @@ const TOOLS = [
               selector: { type: "string", description: "或用 CSS 选择器" },
               interaction: {
                 type: "string",
-                enum: ["click", "double_click", "hover", "type", "select", "check", "uncheck", "focus", "scroll_into_view"],
+                enum: ["click", "double_click", "hover", "type", "select", "check", "uncheck", "focus", "scroll_into_view", "upload"],
               },
               text: { type: "string", description: "interaction=type 时的文字" },
               option: { type: "string", description: "interaction=select 时的选项" },
@@ -332,6 +332,11 @@ async function handle(message) {
 }
 
 async function main() {
+  if (process.argv[2] === "cli") {
+    const { cli } = await import("./cli.mjs")
+    await cli(process.argv.slice(3))
+    return
+  }
   if (process.argv.includes("--open")) {
     const index = process.argv.indexOf("--open")
     const target = process.argv[index + 1]

@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "bulu-browser": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "bulu-browser-mcp@1.0.1"],
+      "runtime": {
+        "type": "node",
+        "version": ">=18.0.0"
+      },
+      "npmRegistries": [
+        "https://registry.npmmirror.com",
+        "https://registry.npmjs.org"
+      ],
+      "timeout": 60000
+    }
+  }
+}

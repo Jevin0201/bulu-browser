@@ -379,6 +379,15 @@ export class BrowserSession {
       case "scroll_into_view":
         await locator.scrollIntoViewIfNeeded()
         return
+      case "upload":
+        if (typeof input.text !== "string") throw new Error("upload 需要 text 参数（文件路径，多个用英文逗号分隔）")
+        await locator.setInputFiles(
+          input.text
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+        )
+        return
       default:
         throw new Error(`不支持的 interaction: ${input.interaction}`)
     }

@@ -1,0 +1,23 @@
+{
+  "name": "布噜浏览器",
+  "name_zh": "布噜浏览器",
+  "name_en": "Bulu Browser",
+  "description": "Drive a real Chrome browser: open pages, read page structure, click, type, screenshot, and inspect network requests.",
+  "description_zh": "用本机真实 Chrome 打开网页、读取页面结构与可交互元素、点击输入、整页截图，并抓取页面网络请求和 console 日志。登录态保存在独立 profile 中，重启后依然有效。",
+  "description_en": "Drive a real Chrome on your machine: open pages, read page structure and interactive elements, click, type, take full-page screenshots, and inspect network requests and console logs. Login state persists in an isolated profile.",
+  "source": "bulu-browser",
+  "type": "mcp",
+  "version": "1.0.1",
+  "examples_zh": [
+    "打开 example.com，把这个页面的主要内容读给我",
+    "帮我在这个网页里把搜索框填上关键词并提交，然后告诉我结果",
+    "截个图给我看当前页面长什么样",
+    "看看这个页面调用了哪些接口，把最新那条请求的返回结构给我"
+  ],
+  "examples_en": [
+    "Open example.com and summarize the main content of the page",
+    "Fill in the search box on this page with a keyword, submit it, and tell me the results",
+    "Take a screenshot so I can see what the current page looks like",
+    "List the API requests this page made and show me the response body of the latest one"
+  ]
+}
