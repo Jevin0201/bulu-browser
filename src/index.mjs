@@ -5,7 +5,7 @@ import path from "node:path"
 import os from "node:os"
 import { session } from "./driver.mjs"
 
-const SERVER_INFO = { name: "bulu-browser", version: "1.2.0" }
+const SERVER_INFO = { name: "bulu-browser", version: "1.2.1" }
 const PROTOCOL = "2024-11-05"
 
 const TOOLS = [

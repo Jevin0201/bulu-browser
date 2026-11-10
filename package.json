@@ -1,6 +1,6 @@
 {
   "name": "bulu-browser-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Drive a real Chrome browser through CDP + Playwright: open pages, read structured snapshots, click, type, screenshot, inspect network requests. Login state and bookmarks persist in an isolated profile.",
   "keywords": [
     "mcp",
@@ -10,7 +10,7 @@
     "playwright",
     "automation"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "author": "Jevin0201",
   "type": "module",
   "bin": {

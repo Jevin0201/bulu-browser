@@ -1,21 +1,127 @@
-MIT License
+布噜浏览器 非商业许可协议 v1.0
+Bulu Browser Non-Commercial License v1.0
 
 Copyright (c) 2026 Jevin0201
+https://github.com/Jevin0201/bulu-browser
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+==================================================================
+一、中文正文（以本中文条款为准 / Chinese text is authoritative）
+==================================================================
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+本许可协议适用于「布噜浏览器」（英文名 Bulu Browser，npm 包名
+bulu-browser-mcp，MCP 服务名 io.github.Jevin0201/bulu-browser，
+以下简称"本软件"）的源代码、文档、图标及相关素材。
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+只要你使用、复制、修改或分发本软件的全部或任何部分，即视为你已阅读、
+理解并同意遵守以下全部条款。若不同意，请立即停止使用并删除本软件。
+
+第 1 条　授权范围
+  在遵守本协议全部条款的前提下，作者免费授予你一项非独占、不可转让的
+  许可，允许你：
+  (1) 出于个人学习、研究、教学、评估目的使用本软件；
+  (2) 在非商业项目中集成、修改本软件，并分发你的修改版本；
+  (3) 复制本软件用于备份或非商业性分享。
+
+第 2 条　署名要求（搬运必须写明作者）
+  (1) 任何形式的分发、转载、二次发布（包括但不限于发布到代码托管平台、
+      网盘、博客、公众号、视频、教程、聚合站、软件市场），必须显著、
+      清晰地注明：
+        · 原作者：Jevin0201
+        · 原项目地址：https://github.com/Jevin0201/bulu-browser
+  (2) 不得删除、隐藏或篡改本软件源码、文档、界面中的任何版权声明、
+      作者署名与许可声明。
+  (3) 若你修改了本软件，必须在文档中明确说明"本版本基于 Jevin0201 的
+      布噜浏览器修改而来"，并列出主要修改内容，不得使他人误认为你是
+      原作者。
+  (4) 不得使用原作者名称、项目名称或图标为自己的衍生作品背书，除非
+      获得书面许可。
+
+第 3 条　禁止商业使用
+  (1) 未经作者事先书面授权，禁止将本软件的全部或任何部分用于任何
+      商业目的。商业目的包括但不限于：
+        · 将本软件或其衍生作品作为商品出售、出租、订阅收费；
+        · 集成进任何付费产品、付费服务、SaaS、云平台或商业解决方案；
+        · 用于企业内部的生产经营活动、客户交付项目或外包项目；
+        · 以本软件为基础提供有偿的技术支持、培训、咨询或定制开发；
+        · 用于为产品或服务获取广告收入、引流变现等直接营利行为。
+  (2) 商业授权需另行联系作者协商，未获授权的一切商业使用均属违约。
+
+第 4 条　再许可
+  你可以分发本软件及其衍生作品，但必须附带本协议全文，且不得附加
+  任何限制他人权利的条款。你不得将本软件以其他许可协议（包括但不限于
+  MIT、Apache-2.0、GPL）重新授权。
+
+第 5 条　免责声明
+  本软件按"现状"提供，不附带任何明示或默示的担保，包括但不限于对
+  适销性、特定用途适用性和非侵权性的担保。在任何情况下，作者均不对
+  因使用或无法使用本软件而产生的任何直接、间接、偶然、特殊或后果性
+  损害承担责任（包括但不限于数据丢失、账号封禁、收益损失、业务中断）。
+
+第 6 条　合规使用
+  你应自行确保使用本软件的行为符合当地法律法规及目标网站的服务条款。
+  将本软件用于未经授权的数据抓取、绕过访问控制、攻击系统、侵犯他人
+  权益或任何违法用途，均由使用者自行承担全部责任，作者不承担任何责任
+  且有权终止对你的授权。
+
+第 7 条　协议终止
+  你违反本协议任一条款时，本协议授予的全部权利立即自动终止，你必须
+  停止使用并删除本软件的全部副本。作者保留追究法律责任的权利。
+
+==================================================================
+二、English Translation (for reference only)
+==================================================================
+
+This license applies to Bulu Browser (npm package "bulu-browser-mcp",
+MCP server name "io.github.Jevin0201/bulu-browser"), including its source
+code, documentation, icons and related assets.
+
+By using, copying, modifying or distributing any part of this software,
+you agree to be bound by all terms below.
+
+1. GRANT
+   Subject to these terms, you are granted a non-exclusive, non-transferable
+   license to (a) use the software for personal study, research, teaching or
+   evaluation; (b) integrate and modify it in non-commercial projects and
+   distribute your modified version; (c) copy it for backup or non-commercial
+   sharing.
+
+2. ATTRIBUTION (REQUIRED WHEN REDISTRIBUTING)
+   (a) Any redistribution, repost or secondary publication must prominently
+       credit the original author "Jevin0201" and link to
+       https://github.com/Jevin0201/bulu-browser.
+   (b) You must not remove, hide or alter any copyright, attribution or
+       license notice in the source code, documentation or UI.
+   (c) Modified versions must state that they are based on Jevin0201's
+       Bulu Browser and summarize the changes.
+   (d) You may not use the author's name, project name or logo to endorse
+       your derivative work without written permission.
+
+3. NON-COMMERCIAL ONLY
+   Any commercial use is prohibited without prior written permission from
+   the author, including selling, renting or subscription-licensing the
+   software; embedding it in a paid product, paid service, SaaS, cloud
+   platform or commercial solution; use in internal business operations or
+   client delivery projects; paid support, training, consulting or custom
+   development based on it; and monetization through ads or traffic.
+
+4. NO RELICENSING
+   Redistributions must include this license in full and may not be
+   relicensed under MIT, Apache-2.0, GPL or any other terms.
+
+5. DISCLAIMER OF WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+   INDIRECT, INCIDENTAL, SPECIAL OR CONSEQUENTIAL DAMAGES ARISING FROM THE
+   USE OR INABILITY TO USE THE SOFTWARE.
+
+6. LAWFUL USE
+   You are solely responsible for complying with applicable laws and the
+   terms of service of any website you access. The author is not liable for
+   any unlawful or abusive use.
+
+7. TERMINATION
+   Any violation terminates all rights granted here immediately. You must
+   stop using and delete all copies.
+
+商业授权 / Commercial licensing: 请在 GitHub 仓库开 issue 联系作者
+(https://github.com/Jevin0201/bulu-browser/issues)
